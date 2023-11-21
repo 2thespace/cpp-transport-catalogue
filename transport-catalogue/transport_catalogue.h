@@ -25,20 +25,23 @@ struct Stop
 		return !(*this == other_stop);
 	}
 };
-using Bus = std::vector<Stop*>;
+struct Bus
+{
+	std::vector<Stop*> stops;
+};
 
-struct Bus_info
+struct BusInfo
 {
 	size_t stops_count = 0;
 	size_t uniq_stops_count = 0;
 	double lenght = 0;
-	bool operator ==(const Bus_info& other_bus)
+	bool operator ==(const BusInfo& other_bus)
 	{
 		return ((this->stops_count == other_bus.stops_count) &&
 			(this->uniq_stops_count == other_bus.uniq_stops_count) &&
 			(std::abs(this->lenght - other_bus.lenght) < PREC));
 	}
-	bool operator !=(const Bus_info& other_bus)
+	bool operator !=(const BusInfo& other_bus)
 	{
 		return !(*this == other_bus);
 	}
@@ -52,11 +55,11 @@ namespace trans_cat
 		// Реализуйте класс самостоятельно
 	public:
 		TransportCatalogue();
-		void AddStop(Stop stop);
+		void AddStop(const Stop& stop);
 		Stop* FindStop(std::string_view stop_name)  const;
-		void AddBus(Bus bus, const std::string& bus_name);
+		void AddBus(const Bus& bus, const std::string& bus_name);
 		Bus* FindBus(std::string_view bus_name) const;
-		Bus_info GetBusInfo(std::string_view bus_name)  const;
+		BusInfo GetBusInfo(std::string_view bus_name)  const;
 		const std::set<std::string_view>* GetStopInfo(std::string_view stop_name)  const;
 	private:
 		std::deque<Stop> stops_;

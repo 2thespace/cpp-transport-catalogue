@@ -1,18 +1,33 @@
 #include "stat_reader.h"
 #include <iomanip>
 
+static void PrintRequest(const trans_cat::TransportCatalogue& tansport_catalogue, std::string_view request,
+    std::ostream& output);
 
-void ParseAndPrintStat(const trans_cat::TransportCatalogue& tansport_catalogue, std::string_view request,
-                       std::ostream& output) {
+
+void ParseAndPrintStat( const trans_cat::TransportCatalogue& tansport_catalogue, 
+                        std::istream& in, std::ostream& output) {
     // Реализуйте самостоятельно
+    int stat_request_count;
+    in >> stat_request_count >> std::ws;
+    for (int i = 0; i < stat_request_count; ++i) {
+        std::string line;
+        std::getline(in, line);
+        PrintRequest(tansport_catalogue, line, output);
+    }
+}
+
+void PrintRequest(const trans_cat::TransportCatalogue& tansport_catalogue, std::string_view request,
+    std::ostream& output)
+{
     size_t first_space = request.find(' ');
     auto command = request.substr(0, first_space);
     request = request.substr(first_space);
     if (command == "Bus")
     {
         std::string_view bus = request.substr(request.find_first_not_of(' '), request.size());
-        Bus_info bus_info = tansport_catalogue.GetBusInfo(bus);
-        if (bus_info == Bus_info{}) {
+        BusInfo bus_info = tansport_catalogue.GetBusInfo(bus);
+        if (bus_info == BusInfo{}) {
             output << "Bus " << bus << ": not found\n";
             return;
         }
@@ -36,12 +51,11 @@ void ParseAndPrintStat(const trans_cat::TransportCatalogue& tansport_catalogue, 
         }
         else {
             output << "Stop " << stop << ": buses ";
-            for (auto bus : *buses)
+            for (auto& bus : *buses)
             {
                 output << bus << " ";
             }
         }
         output << '\n';
     }
-
 }

@@ -131,10 +131,20 @@ void InputReader::ApplyCommands([[maybe_unused]] trans_cat::TransportCatalogue& 
             Bus bus;
             for (auto stop : stops)
             {
-                bus.push_back(catalogue.FindStop(stop));
+                bus.stops.push_back(catalogue.FindStop(stop));
             }
             catalogue.AddBus(bus, command.id);
         }
+    }
+}
+void InputReader::ParseRequest(std::istream& in)
+{
+    int base_request_count;
+    in >> base_request_count >> std::ws;
+    for (int i = 0; i < base_request_count; ++i) {
+        std::string line;
+        std::getline(in, line);
+        this->ParseLine(line);
     }
 }
 

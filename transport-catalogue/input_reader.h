@@ -3,6 +3,7 @@
 #include <string_view>
 #include <vector>
 #include "geo.h"
+#include <sstream>
 #include "transport_catalogue.h"
 
 
@@ -30,7 +31,7 @@ public:
      * Парсит строку в структуру CommandDescription и сохраняет результат в commands_
      */
     void ParseLine(std::string_view line);
-
+    void ParseRequest(std::istream& is);
     /**
      * Наполняет данными транспортный справочник, используя команды из commands_
     */

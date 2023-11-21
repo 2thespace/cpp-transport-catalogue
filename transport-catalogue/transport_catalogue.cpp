@@ -10,12 +10,12 @@ namespace trans_cat
 
 	}
 
-	void TransportCatalogue::AddStop(Stop stop)
+	void TransportCatalogue::AddStop(const Stop& stop)
 	{
 		stops_.push_back(stop);
-		// РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РІС‹РіР»СЏРґРёС‚ СЃР»РѕР¶РЅРѕР№ Рё РµСЃС‚СЊ РѕС‰СѓС‰РµРЅРёРµ Р±СѓРґС‚Рѕ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ СЃРґРµР»Р°С‚СЊ
-		// РєР°Рє С‚Рѕ РїСЂРѕС‰Рµ, РЅРѕ РїСЂРё РґСЂСѓРіРёС… РІР°СЂРёР°РЅС‚Р°С… Сѓ РјРµРЅСЏ СЃР»РµС‚Р°Р» С…РµС€ РїРѕСЃРєРѕР»СЊРєСѓ string 
-		// РЅР° РєРѕС‚РѕСЂС‹Р№ СѓРєР°Р·С‹РІР°Р» string_view РёР·РјРµРЅСЏР»СЃСЏ
+		// конструкция выглядит сложной и есть ощущение будто можно было сделать
+		// как то проще, но при других вариантах у меня слетал хеш поскольку string 
+		// на который указывал string_view изменялся
 		stopname_to_stop_[stops_.back().stop_name] = &stops_.back();
 		stopname_to_busname_[&stops_.back()];
 	}
@@ -28,11 +28,11 @@ namespace trans_cat
 		return nullptr;
 	}
 
-	void TransportCatalogue::AddBus(Bus bus, const string& bus_name)
+	void TransportCatalogue::AddBus(const Bus& bus, const string& bus_name)
 	{
 		buses_.push_back(bus);
 		busname_to_bus_[bus_name] = &buses_.back();
-		for (auto stop : bus)
+		for (auto stop : bus.stops)
 		{
 			stopname_to_busname_[stop].insert(bus_name);
 		}
@@ -46,19 +46,19 @@ namespace trans_cat
 		return nullptr;
 	}
 #include <iostream>
-	Bus_info TransportCatalogue::GetBusInfo(string_view  bus_name) const
+	BusInfo TransportCatalogue::GetBusInfo(string_view  bus_name) const
 	{
 		Bus* p_bus = FindBus(bus_name);
 		if (p_bus == nullptr) {
 			return {};
 		}
 		Bus bus = *p_bus;
-		size_t all_stops = bus.size();
+		size_t all_stops = bus.stops.size();
 		double length = 0;
 		unordered_set<string> uniq_stop;
 		bool is_first = true;
-		auto prev_stop = bus[0];
-		for (auto stop : bus)
+		auto prev_stop = bus.stops[0];
+		for (auto stop : bus.stops)
 		{
 
 			uniq_stop.insert(stop->stop_name);

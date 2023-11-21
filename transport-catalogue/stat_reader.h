@@ -4,5 +4,5 @@
 #include <string_view>
 #include "transport_catalogue.h"
 
-void ParseAndPrintStat(const trans_cat::TransportCatalogue& tansport_catalogue, std::string_view request,
+void ParseAndPrintStat(const trans_cat::TransportCatalogue& tansport_catalogue, std::istream& input,
                        std::ostream& output);
