@@ -16,9 +16,9 @@ int main() {
     std::ifstream in("in.txt");
     {
         InputReader reader;
-        reader.ParseRequest(in);
+        reader.ParseRequest(std::cin);
         reader.ApplyCommands(catalogue);
     }
-    ParseAndPrintStat(catalogue, in, std::cout);
+    ParseAndPrintStat(catalogue, std::cin, std::cout);
    
 }

@@ -34,7 +34,7 @@ void PrintRequest(const trans_cat::TransportCatalogue& tansport_catalogue, std::
         output << "Bus " << bus << ": " << bus_info.stops_count << " stops on route, " \
             << bus_info.uniq_stops_count << " unique stops, " \
             << std::setprecision(6) << bus_info.lenght \
-            << " route length\n";
+            << " route length, " << bus_info.curv << " curvature\n";
 
     }
     if (command == "Stop")
