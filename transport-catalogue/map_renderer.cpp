@@ -18,7 +18,7 @@
      };
  }
 
- svg::Polyline DrawBus(const Bus *bus, map_render options, SphereProjector proj, svg::Color color)
+ svg::Polyline MapRender::DrawBus(const Bus *bus, RenderSettings options, SphereProjector proj, svg::Color color)
  {
      svg::Polyline line;
      std::vector<geo::Coordinates> geo_coords;
@@ -43,7 +43,7 @@
 
  }
  
- svg::Text DrawBusName(std::string_view bus_name, svg::Point coor, map_render options, svg::Color color, bool is_undertext = false)
+ svg::Text MapRender::DrawBusName(std::string_view bus_name, svg::Point coor, RenderSettings options, svg::Color color, bool is_undertext = false)
  {
      svg::Text text;
      /* общие свойства */
@@ -67,7 +67,7 @@
      return text;
  }
  
- svg::Circle DrawStopCircle(const Stop* stop, map_render options, SphereProjector proj)
+ svg::Circle MapRender::DrawStopCircle(const Stop* stop, RenderSettings options, SphereProjector proj)
  {
      svg::Circle circle;
      circle.SetCenter(proj(stop->coor));
@@ -76,7 +76,7 @@
      return circle;
  }
 
- svg::Text DrawStopText(std::string_view stop_name, map_render options, svg::Point coor, bool is_undertext = false)
+ svg::Text MapRender::DrawStopText(std::string_view stop_name, RenderSettings options, svg::Point coor, bool is_undertext = false)
  {
      svg::Text text;
      /* только для обычного текста */
@@ -98,7 +98,7 @@
      return text;
  }
  
- void PrintSVG(trans_cat::TransportCatalogue& catalogue, map_render options, std::ostream& out)
+ void MapRender::PrintSVG(trans_cat::TransportCatalogue& catalogue, RenderSettings options, std::ostream& out)
  {
      svg::Document doc;
      auto all_buses = catalogue.GetSortedAllBuses();

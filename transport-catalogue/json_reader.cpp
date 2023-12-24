@@ -11,18 +11,18 @@ void JsonReader::LoadJSON(std::istream& in) {
     
 }
 
-void JsonReader::ParcingRequest(trans_cat::TransportCatalogue& catalogue)
+void JsonReader::ParseRequest(trans_cat::TransportCatalogue& catalogue)
 {
     auto& node = doc_.GetRoot();
     if (node.IsMap()) {
         for (auto& [key, value] : node.AsMap())
         {
             if (key == BASE) {
-                ParcingStopRequest(value);
+                ParseStopRequest(value);
             }
             else if (key == RENDER)
             {
-                mapper_ = ParcingRender(value);
+                mapper_ = ParseRender(value);
             }
 
         }
@@ -42,7 +42,7 @@ void JsonReader::ParcingRequest(trans_cat::TransportCatalogue& catalogue)
     for (auto& [key, value] : node.AsMap())
     {
         if (key == BASE) {
-            ParcingBusRequest(value, catalogue);
+            ParseBusRequest(value, catalogue);
         }
     }
 
@@ -67,9 +67,9 @@ svg::Color ParseColor(json::Node node)
         return svg::Color{};
     }
 }
-map_render JsonReader::ParcingRender(const json::Node& node)
+RenderSettings JsonReader::ParseRender(const json::Node& node)
 {
-    map_render mapper;
+    RenderSettings mapper;
     mapper.bus_label_font_size = node.AsMap().at("bus_label_font_size").AsInt();
     mapper.stop_label_font_size = node.AsMap().at("stop_label_font_size").AsInt();
     mapper.bus_label_offset.x = node.AsMap().at("bus_label_offset").AsArray()[0].AsDouble();
@@ -94,12 +94,12 @@ map_render JsonReader::ParcingRender(const json::Node& node)
     mapper.color_palette = color_palette;
     return mapper;
 }
-map_render JsonReader::LoadRender()
+RenderSettings JsonReader::LoadRender()
 {
     
     return mapper_;
 }
-void JsonReader::ParcingBusRequest(const json::Node& node, trans_cat::TransportCatalogue& catalogue)
+void JsonReader::ParseBusRequest(const json::Node& node, trans_cat::TransportCatalogue& catalogue)
 {
     if (node.IsArray()) {
         for (auto& request : node.AsArray())
@@ -122,7 +122,7 @@ void JsonReader::ParcingBusRequest(const json::Node& node, trans_cat::TransportC
     }
 }
 
-void JsonReader::ParcingStopRequest(const json::Node& node)
+void JsonReader::ParseStopRequest(const json::Node& node)
 {
     if (node.IsArray()) {
         for (auto& request : node.AsArray())
@@ -151,7 +151,7 @@ Stop JsonReader::ParceStop(const json::Node& node)
     return stop;
 }
 
-void JsonReader::ParcingStateRequest(trans_cat::TransportCatalogue& catalogue, std::ostream& out)
+void JsonReader::ParseStateRequest(trans_cat::TransportCatalogue& catalogue, std::ostream& out)
 {
     auto& node = doc_.GetRoot();
     json::Node requests;
@@ -159,7 +159,7 @@ void JsonReader::ParcingStateRequest(trans_cat::TransportCatalogue& catalogue, s
         for (auto& [key, value] : node.AsMap())
         {
             if (key == STAT) {
-                requests = ParcingState(catalogue, value);
+                requests = ParseState(catalogue, value);
               
             }
 
@@ -168,7 +168,7 @@ void JsonReader::ParcingStateRequest(trans_cat::TransportCatalogue& catalogue, s
     PrintNode(requests, out);
 }
 
-json::Node JsonReader::ParcingState(trans_cat::TransportCatalogue& catalogue, const json::Node& node)
+json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, const json::Node& node)
 {
    
     json::Array array;
@@ -183,7 +183,8 @@ json::Node JsonReader::ParcingState(trans_cat::TransportCatalogue& catalogue, co
         {
             auto render_options = LoadRender();
             std::ostringstream string_out;
-            PrintSVG(catalogue, render_options, string_out);
+            MapRender render;
+            render.PrintSVG(catalogue, render_options, string_out);
             json::Dict map_arr;
             map_arr["request_id"] = request_id;
             map_arr["map"] = string_out.str();

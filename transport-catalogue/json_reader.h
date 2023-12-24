@@ -37,22 +37,22 @@ class JsonReader {
 public:
     JsonReader() = default;
     void LoadJSON(std::istream& in);
-    void ParcingRequest(trans_cat::TransportCatalogue& catalogue);
-    void ParcingStateRequest(trans_cat::TransportCatalogue& catalogue, std::ostream& out);
-    map_render LoadRender();
+    void ParseRequest(trans_cat::TransportCatalogue& catalogue);
+    void ParseStateRequest(trans_cat::TransportCatalogue& catalogue, std::ostream& out);
+    RenderSettings LoadRender();
 private:
     json::Document doc_;
     std::deque<Stop> stops_queue_;
     std::deque<std::string_view> buses_name_;
     std::deque<std::vector<StopDist>> stop_dist_queue_;
-    map_render mapper_;
+    RenderSettings mapper_;
     
-    void ParcingStopRequest(const json::Node& node);
-    void ParcingBusRequest(const json::Node& node, trans_cat::TransportCatalogue& catalogue);
+    void ParseStopRequest(const json::Node& node);
+    void ParseBusRequest(const json::Node& node, trans_cat::TransportCatalogue& catalogue);
     Stop ParceStop(const json::Node& node);
     std::vector<StopDist> ParceStopDist(const json::Node& node);
-    json::Node ParcingState(trans_cat::TransportCatalogue& catalogue, const json::Node& node);
-    map_render ParcingRender(const json::Node& node);
+    json::Node ParseState(trans_cat::TransportCatalogue& catalogue, const json::Node& node);
+    RenderSettings ParseRender(const json::Node& node);
     
 };
 

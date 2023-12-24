@@ -79,7 +79,7 @@ SphereProjector::SphereProjector(PointInputIt points_begin, PointInputIt points_
     }
 }
 
-struct map_render
+struct RenderSettings
 {
     double width = 0.0;
     double height = 0.0;
@@ -95,8 +95,13 @@ struct map_render
     std::vector<svg::Color> color_palette{};
 };
 
-void PrintSVG(trans_cat::TransportCatalogue& catalogue, map_render options, std::ostream& out);
-svg::Polyline DrawBus( const Bus* bus, map_render options, SphereProjector proj);
-svg::Circle DrawStopCircle(const Stop* stop, map_render options, SphereProjector proj);
-svg::Text DrawStopText(std::string_view stop_name, map_render options, svg::Point coor, bool is_undertext);
-svg::Text DrawBusName(std::string_view bus_name, svg::Point coor, map_render options, svg::Color color, bool is_undertext);
+class MapRender
+{
+public:
+    void PrintSVG(trans_cat::TransportCatalogue& catalogue, RenderSettings options, std::ostream& out);
+    svg::Polyline DrawBus(const Bus* bus, RenderSettings options, SphereProjector proj, svg::Color color);
+    svg::Circle DrawStopCircle(const Stop* stop, RenderSettings options, SphereProjector proj);
+    svg::Text DrawStopText(std::string_view stop_name, RenderSettings options, svg::Point coor, bool is_undertext);
+    svg::Text DrawBusName(std::string_view bus_name, svg::Point coor, RenderSettings options, svg::Color color, bool is_undertext);
+private:
+};
