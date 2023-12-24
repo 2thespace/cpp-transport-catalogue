@@ -55,7 +55,7 @@ namespace trans_cat
 		Bus bus = *p_bus;
 		size_t all_stops = bus.stops.size();
 		double geo_length = 0;
-		size_t road_length = 0;
+		std::size_t road_length = 0;
 		unordered_set<string> uniq_stop;
 		bool is_first = true;
 		auto prev_stop = bus.stops[0];
@@ -67,12 +67,14 @@ namespace trans_cat
 				is_first = false;
 				continue;
 			}
+
 			geo_length += ComputeDistance(prev_stop->coor, stop->coor);
 			road_length += GetDistance(prev_stop->stop_name, stop->stop_name);
 			prev_stop = stop;
 
 		}
-		return { all_stops, uniq_stop.size(), road_length, road_length/geo_length };
+
+		return { all_stops, uniq_stop.size(), road_length, road_length / geo_length };
 	}
 
 	const set<string_view>* TransportCatalogue::GetStopInfo(string_view stop_name)  const
@@ -111,4 +113,14 @@ namespace trans_cat
 			return 0;
 		}
 	}
+
+	const std::map<std::string_view, const Bus*> TransportCatalogue::GetSortedAllBuses() const {
+		std::map<std::string_view, const Bus*> result;
+		for (const auto& bus : busname_to_bus_) {
+			result.emplace(bus);
+		}
+		return result;
+	}
 }
+
+

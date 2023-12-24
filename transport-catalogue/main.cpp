@@ -1,24 +1,20 @@
+#include "transport_catalogue.h"
+#include "json_reader.h"
 #include <iostream>
-#include <string>
 #include <fstream>
-#include <sstream>
-#include "input_reader.h"
-#include "stat_reader.h"
-
-
-using namespace std;
-
 
 int main() {
+
     using namespace trans_cat;
     TransportCatalogue catalogue;
-   
-    std::ifstream in("in.txt");
-    {
-        InputReader reader;
-        reader.ParseRequest(std::cin);
-        reader.ApplyCommands(catalogue);
-    }
-    ParseAndPrintStat(catalogue, std::cin, std::cout);
-   
+    
+    std::ifstream in_file("in.txt");
+    std::ofstream out_file("out.txt");
+    JsonReader input_json;
+    input_json.LoadJSON(std::cin);
+    input_json.ParcingRequest(catalogue);
+    auto render_options = input_json.LoadRender();
+   // PrintSVG(catalogue, render_options, std::cout);
+    input_json.ParcingStateRequest(catalogue, std::cout);
+    
 }
