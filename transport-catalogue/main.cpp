@@ -15,6 +15,6 @@ int main() {
     input_json.ParseRequest(catalogue);
     auto render_options = input_json.LoadRender();
    // PrintSVG(catalogue, render_options, std::cout);
-    input_json.ParseStateRequest(catalogue, std::cout);
+    input_json.ParseStateRequest(catalogue, out_file);
     
 }

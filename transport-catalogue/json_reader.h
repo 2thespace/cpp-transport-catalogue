@@ -3,7 +3,7 @@
 #include <string_view>
 #include <vector>
 #include "geo.h"
-#include "json.h"
+#include "json_builder.h"
 #include <sstream>
 #include "transport_catalogue.h"
 #include "map_renderer.h"
@@ -35,7 +35,7 @@ struct CommandDescription {
 class JsonReader {
 
 public:
-    JsonReader() = default;
+    JsonReader();
     void LoadJSON(std::istream& in);
     void ParseRequest(trans_cat::TransportCatalogue& catalogue);
     void ParseStateRequest(trans_cat::TransportCatalogue& catalogue, std::ostream& out);

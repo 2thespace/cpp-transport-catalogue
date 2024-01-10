@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "geo.h"
-
+#include <cstdint>
 #include <cmath>
 
 namespace geo {
