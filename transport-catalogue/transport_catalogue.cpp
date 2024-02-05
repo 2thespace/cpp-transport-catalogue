@@ -1,10 +1,12 @@
 #include "transport_catalogue.h"
 #include <unordered_set>
-
+#include "graph.h"
 
 namespace trans_cat
 {
 	using namespace std;
+	using StopGraph = graph::DirectedWeightedGraph<Stop*>;
+
 	TransportCatalogue::TransportCatalogue()
 	{
 
@@ -121,6 +123,27 @@ namespace trans_cat
 		}
 		return result;
 	}
-}
+
+	int TransportCatalogue::GetVelocity(void)
+	{
+		return bus_velocity_;
+	}
+
+	int TransportCatalogue::GetWaitTime(void)
+	{
+		return bus_wait_time_;
+	}
+
+	void TransportCatalogue::SetVelocity(int velocity) 
+	{
+		bus_velocity_ = velocity;
+	}
+
+	void TransportCatalogue::SetWaitTime(int time)
+	{
+		bus_wait_time_ = time;
+	}
+
+} // namespace transport_cat
 
 

@@ -14,6 +14,8 @@
 const std::string_view BASE = "base_requests";
 const std::string_view STAT = "stat_requests";
 const std::string_view RENDER = "render_settings";
+const std::string_view BUS_ROUTE = "routing_settings";
+const std::string_view ROUTE = "route";
 
 svg::Color ParseColor(json::Node node);
 
@@ -53,6 +55,7 @@ private:
     std::vector<StopDist> ParceStopDist(const json::Node& node);
     json::Node ParseState(trans_cat::TransportCatalogue& catalogue, const json::Node& node);
     RenderSettings ParseRender(const json::Node& node);
+    RouteSettings ParseRouteSettings(const json::Node& node);
     
 };
 

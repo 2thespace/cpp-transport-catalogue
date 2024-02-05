@@ -29,6 +29,8 @@ struct Bus
 {
 	std::string name;
 	std::vector<Stop*> stops;
+	int velocity;
+	int wait_time;
 	bool is_sircle;
 };
 

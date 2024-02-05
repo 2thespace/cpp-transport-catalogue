@@ -25,9 +25,13 @@ void JsonReader::ParseRequest(trans_cat::TransportCatalogue& catalogue)
             if (key == BASE) {
                 ParseStopRequest(value);
             }
-            else if (key == RENDER)
-            {
+            else if (key == RENDER) {
                 mapper_ = ParseRender(value);
+            }
+            else if (key == BUS_ROUTE) {
+                auto bus_info = ParseRouteSettings(value);
+                catalogue.SetVelocity(bus_info.bus_velocity);
+                catalogue.SetWaitTime(bus_info.bus_time);
             }
 
         }
@@ -50,7 +54,6 @@ void JsonReader::ParseRequest(trans_cat::TransportCatalogue& catalogue)
             ParseBusRequest(value, catalogue);
         }
     }
-
 }
 svg::Color ParseColor(json::Node node)
 {
@@ -72,6 +75,9 @@ svg::Color ParseColor(json::Node node)
         return svg::Color{};
     }
 }
+
+
+
 RenderSettings JsonReader::ParseRender(const json::Node& node)
 {
     RenderSettings mapper;
@@ -99,6 +105,15 @@ RenderSettings JsonReader::ParseRender(const json::Node& node)
     mapper.color_palette = color_palette;
     return mapper;
 }
+
+RouteSettings JsonReader::ParseRouteSettings(const json::Node& node)
+{
+    RouteSettings bus_info;
+    bus_info.bus_velocity = node.AsDict().at("bus_velocity").AsInt();
+    bus_info.bus_time = node.AsDict().at("bus_wait_time").AsInt();
+    return bus_info;
+}
+
 RenderSettings JsonReader::LoadRender()
 {
     
@@ -179,7 +194,6 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
     json::Array array; // не совсем понятно как array сделать реализовать через builder
     auto array_builder = json::Builder{};
     array_builder.StartArray();
-
     for (auto& request : node.AsArray())
     {
         json::Builder error_builder;
@@ -248,6 +262,11 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
                 
                 //array.push_back(dict);
             }
+        }
+        else if (type == "Route") {
+            std::string stop_from = request.AsDict().at("from").AsString();
+            std::string stop_to = request.AsDict().at("to").AsString();
+            std::cout << stop_from << " " << stop_to << std::endl;
         }
 
 
