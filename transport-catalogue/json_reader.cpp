@@ -2,6 +2,7 @@
 #include "json.h"
 #include "request_handler.h"
 
+
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
@@ -264,15 +265,48 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
             }
         }
         else if (type == "Route") {
+            
             std::string stop_from = request.AsDict().at("from").AsString();
             std::string stop_to = request.AsDict().at("to").AsString();
-            std::cout << stop_from << " " << stop_to << std::endl;
+            trans_cat::TransportRouter  bus_router;
+            bus_router.BuildGraph(catalogue);
+            ParseRouteGraph(bus_router, stop_from, stop_to, request_id);
+            //std::cout << stop_from << " " << stop_to << std::endl;
         }
 
 
     }
     
     return array_builder.EndArray().Build();
+}
+
+const json::Node& JsonReader::ParseRouteGraph(trans_cat::TransportRouter& router, const std::string_view stop_from, const std::string_view stop_to, int request_id)
+{
+    auto optional_graph = router.GetStopRoute(stop_from, stop_to);
+    json::Builder builder;
+    if (!optional_graph) {
+        builder.StartDict().Key("request_id").Value(request_id).Key("error_message").Value("not found").EndDict();        
+    }
+    else {
+        auto edges = optional_graph->edges;
+        auto graph = router.GetGraph();
+        std::cout << "request id: " << request_id << std::endl;
+        for (auto& edge_id : edges)
+        {
+            auto  edge = graph.GetEdge(edge_id);
+           /*
+            auto bus_name = router.GetEdgeName(edge);
+            if (bus_name.empty()) {
+                std::cout << "Wait time: " << 6 << router.GetEdgeName(edge) << std::endl;
+            }
+            else {
+                std::cout << "Bus name: " << bus_name << std::endl;
+            }
+            */
+        }
+    }
+
+    return json::Node{};
 }
 
 std::vector<StopDist> JsonReader::ParceStopDist(const json::Node& node)

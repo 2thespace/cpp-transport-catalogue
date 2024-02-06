@@ -6,6 +6,7 @@
 #include "json_builder.h"
 #include <sstream>
 #include "transport_catalogue.h"
+#include "transport_router.h"
 #include "map_renderer.h"
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
@@ -56,6 +57,7 @@ private:
     json::Node ParseState(trans_cat::TransportCatalogue& catalogue, const json::Node& node);
     RenderSettings ParseRender(const json::Node& node);
     RouteSettings ParseRouteSettings(const json::Node& node);
+    const json::Node& ParseRouteGraph(trans_cat::TransportRouter& router, const std::string_view stop_from, const std::string_view stop_to, int request_id);
     
 };
 

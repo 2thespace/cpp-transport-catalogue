@@ -16,11 +16,12 @@
 
 namespace trans_cat
 {
+	const double KMPH_TO_MPM = 1000.0 / 60.0;
+
 	class TransportCatalogue {
 
 		// Реализуйте класс самостоятельно
 	public:
-		using StopGraph = graph::DirectedWeightedGraph<Stop*>;
 		TransportCatalogue();
 		void AddStop(const Stop& stop);
 		Stop* FindStop(std::string_view stop_name)  const;
@@ -31,8 +32,9 @@ namespace trans_cat
 		void SetDistance(const StopDist& stop_dist);
 		size_t GetDistance(std::string_view first_stop, std::string_view second_stop) const;
 		const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
-		int GetVelocity(void);
-		int GetWaitTime(void);
+		const std::unordered_map<std::string_view, Stop*> GetAllStops() const;
+		int GetVelocity() const;
+		int GetWaitTime() const;
 		void SetVelocity(int velocity);
 		void SetWaitTime(int time);
 	private:

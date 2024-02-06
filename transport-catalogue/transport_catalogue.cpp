@@ -2,6 +2,8 @@
 #include <unordered_set>
 #include "graph.h"
 
+
+
 namespace trans_cat
 {
 	using namespace std;
@@ -124,12 +126,17 @@ namespace trans_cat
 		return result;
 	}
 
-	int TransportCatalogue::GetVelocity(void)
+	const std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetAllStops() const
+	{
+		return  stopname_to_stop_;
+	}
+
+	int TransportCatalogue::GetVelocity() const
 	{
 		return bus_velocity_;
 	}
 
-	int TransportCatalogue::GetWaitTime(void)
+	int TransportCatalogue::GetWaitTime() const
 	{
 		return bus_wait_time_;
 	}
