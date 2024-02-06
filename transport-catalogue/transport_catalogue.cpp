@@ -126,12 +126,12 @@ namespace trans_cat
 		return result;
 	}
 
-	const std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetAllStops() const
+	const std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetAllStops() const
 	{
 		return  stopname_to_stop_;
 	}
 
-	int TransportCatalogue::GetVelocity() const
+	double TransportCatalogue::GetVelocity() const
 	{
 		return bus_velocity_;
 	}
@@ -151,6 +151,10 @@ namespace trans_cat
 		bus_wait_time_ = time;
 	}
 
+	const std::unordered_map<std::string_view, Bus*>& TransportCatalogue::GetAllBuses() const
+	{	
+		return busname_to_bus_;
+	}
 } // namespace transport_cat
 
 

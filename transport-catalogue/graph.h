@@ -12,6 +12,8 @@ using EdgeId = size_t;
 
 template <typename Weight>
 struct Edge {
+    std::string_view name;
+    std::size_t stop_count;
     VertexId from;
     VertexId to;
     Weight weight;

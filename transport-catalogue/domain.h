@@ -8,6 +8,12 @@ const double PREC = 1e-5;
 const uint16_t PRIME_NUMB = 13;
 const uint16_t MOD = 42;
 
+struct RouteSettings
+{
+    double bus_velocity = 0;
+    int bus_time = 0;
+};
+
 struct StopDist
 {
 	std::string first_stop;

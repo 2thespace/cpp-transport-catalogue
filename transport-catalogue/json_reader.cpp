@@ -1,7 +1,7 @@
 #include "json_reader.h"
 #include "json.h"
 #include "request_handler.h"
-
+#include <chrono>
 
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
@@ -110,7 +110,7 @@ RenderSettings JsonReader::ParseRender(const json::Node& node)
 RouteSettings JsonReader::ParseRouteSettings(const json::Node& node)
 {
     RouteSettings bus_info;
-    bus_info.bus_velocity = node.AsDict().at("bus_velocity").AsInt();
+    bus_info.bus_velocity = node.AsDict().at("bus_velocity").AsDouble();
     bus_info.bus_time = node.AsDict().at("bus_wait_time").AsInt();
     return bus_info;
 }
@@ -191,8 +191,9 @@ void JsonReader::ParseStateRequest(trans_cat::TransportCatalogue& catalogue, std
 
 json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, const json::Node& node)
 {
-   
-    json::Array array; // не совсем понятно как array сделать реализовать через builder
+    trans_cat::TransportRouter  bus_router;
+    bus_router.BuildGraph(catalogue);
+    json::Array array; 
     auto array_builder = json::Builder{};
     array_builder.StartArray();
     for (auto& request : node.AsArray())
@@ -202,7 +203,7 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
             .Key("error_message").Value(json::Node{ static_cast <std::string>("not found") });
         int request_id = request.AsDict().at("id").AsInt();
         error_builder.Key("request_id").Value(request_id);
-        //error_dict["request_id"] = request_id; // как добавить в уже готовый словарь еще значения тоже непонятно
+
         std::string type = request.AsDict().at("type").AsString();
         if (type == "Map")
         {
@@ -215,10 +216,8 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
                     .Key("request_id").Value(request_id)
                     .Key("map").Value(string_out.str())
                 .EndDict().Build().AsDict();
-            //map_arr["request_id"] = request_id;
-            //map_arr["map"] = string_out.str();
+
             array_builder.Value(json::Node(map_arr));
-           // array.push_back(map_arr);
         }
         else if (type == "Bus") {
             std::string name = request.AsDict().at("name").AsString();
@@ -226,7 +225,6 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
 
             if (bus_info == BusInfo{}) {
                 array_builder.Value(error_builder.EndDict().Build());
-                //array.push_back(error_builder.EndDict().Build());
             }
             else {
                 array_builder.StartDict()
@@ -236,8 +234,7 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
                     .Key("stop_count").Value((int)bus_info.stops_count)
                     .Key("unique_stop_count").Value((int)bus_info.uniq_stops_count)
                 .EndDict();
-                //array_builder.Value(dict);
-                //array.push_back(dict);
+
             }
         }
         else if (type == "Stop")  {
@@ -245,11 +242,9 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
             auto stop_info = catalogue.GetStopInfo(name);
             if (stop_info == nullptr) {
                 array_builder.Value(error_builder.EndDict().Build());
-                //array.push_back(error_builder.EndDict().Build());
+  
             }
             else {
-                //json::Dict dict;
-                //json::Array bus_list;
                 auto bus_list_builder = json::Builder();
                 bus_list_builder.StartArray();
                 for (auto& bus : *stop_info)
@@ -260,18 +255,14 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
                 array_builder.StartDict()
                     .Key("buses").Value(bus_list_builder.EndArray().Build())
                     .Key("request_id").Value(request_id).EndDict();
-                
-                //array.push_back(dict);
             }
         }
         else if (type == "Route") {
             
             std::string stop_from = request.AsDict().at("from").AsString();
             std::string stop_to = request.AsDict().at("to").AsString();
-            trans_cat::TransportRouter  bus_router;
-            bus_router.BuildGraph(catalogue);
-            ParseRouteGraph(bus_router, stop_from, stop_to, request_id);
-            //std::cout << stop_from << " " << stop_to << std::endl;
+            auto route_node = ParseRouteGraph(bus_router, stop_from, stop_to, request_id);
+            array_builder.Value(route_node);
         }
 
 
@@ -280,33 +271,53 @@ json::Node JsonReader::ParseState(trans_cat::TransportCatalogue& catalogue, cons
     return array_builder.EndArray().Build();
 }
 
-const json::Node& JsonReader::ParseRouteGraph(trans_cat::TransportRouter& router, const std::string_view stop_from, const std::string_view stop_to, int request_id)
+const json::Node JsonReader::ParseRouteGraph(trans_cat::TransportRouter& router, const std::string_view stop_from, const std::string_view stop_to, int request_id)
 {
     auto optional_graph = router.GetStopRoute(stop_from, stop_to);
-    json::Builder builder;
     if (!optional_graph) {
-        builder.StartDict().Key("request_id").Value(request_id).Key("error_message").Value("not found").EndDict();        
+        return json::Builder{}.StartDict().Key("request_id").Value(request_id).Key("error_message").Value("not found").EndDict().Build();        
     }
-    else {
-        auto edges = optional_graph->edges;
-        auto graph = router.GetGraph();
-        std::cout << "request id: " << request_id << std::endl;
-        for (auto& edge_id : edges)
-        {
-            auto  edge = graph.GetEdge(edge_id);
-           /*
-            auto bus_name = router.GetEdgeName(edge);
-            if (bus_name.empty()) {
-                std::cout << "Wait time: " << 6 << router.GetEdgeName(edge) << std::endl;
-            }
-            else {
-                std::cout << "Bus name: " << bus_name << std::endl;
-            }
-            */
+    
+    auto& edges = optional_graph->edges;
+    auto& graph = router.GetGraph();
+    double total_time = 0;
+    
+    json::Builder items_array_builder;
+    items_array_builder.StartArray();
+    for (auto& edge_id : edges)
+    {
+
+        auto  edge = graph.GetEdge(edge_id);
+        if(edge.stop_count == 0) {
+            items_array_builder
+            .StartDict()
+                .Key("stop_name").Value(std::string(edge.name))
+                .Key("time").Value(edge.weight)
+                .Key("type").Value("Wait")
+            .EndDict();
+            total_time += edge.weight;
+        }
+        else {
+            items_array_builder
+            .StartDict()
+                .Key("bus").Value(std::string(edge.name))
+                .Key("span_count").Value((int)edge.stop_count)
+                .Key("time").Value(edge.weight)
+                .Key("type").Value("Bus")
+            .EndDict();
+            total_time += edge.weight; 
         }
     }
-
-    return json::Node{};
+    items_array_builder.EndArray();
+    
+    json::Builder builder;
+    builder
+    .StartDict()
+        .Key("request_id").Value(request_id)
+        .Key("items").Value(items_array_builder.Build())
+        .Key("total_time").Value(total_time)
+    .EndDict();
+    return builder.Build();
 }
 
 std::vector<StopDist> JsonReader::ParceStopDist(const json::Node& node)

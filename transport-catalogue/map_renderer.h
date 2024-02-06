@@ -95,11 +95,7 @@ struct RenderSettings
     std::vector<svg::Color> color_palette{};
 };
 
-struct RouteSettings
-{
-    int bus_velocity = 0;
-    int bus_time = 0;
-};
+
 
 class MapRender
 {

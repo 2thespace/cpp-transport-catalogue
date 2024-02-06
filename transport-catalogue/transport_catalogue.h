@@ -32,8 +32,9 @@ namespace trans_cat
 		void SetDistance(const StopDist& stop_dist);
 		size_t GetDistance(std::string_view first_stop, std::string_view second_stop) const;
 		const std::map<std::string_view, const Bus*> GetSortedAllBuses() const;
-		const std::unordered_map<std::string_view, Stop*> GetAllStops() const;
-		int GetVelocity() const;
+		const std::unordered_map<std::string_view, Stop*>& GetAllStops() const;
+		const std::unordered_map<std::string_view, Bus*>& GetAllBuses() const;
+		double GetVelocity() const;
 		int GetWaitTime() const;
 		void SetVelocity(int velocity);
 		void SetWaitTime(int time);
@@ -44,7 +45,7 @@ namespace trans_cat
 		std::unordered_map<std::string_view, Bus*> busname_to_bus_;
 		std::unordered_map <Stop*, std::set<std::string_view> > stopname_to_busname_;
 		std::unordered_map<StopPtrPair, size_t, StopPtrPairHasher> distance_table_;
-		int bus_velocity_ = 0;
+		double bus_velocity_ = 0;
 		int bus_wait_time_ = 0;
 
 	};
